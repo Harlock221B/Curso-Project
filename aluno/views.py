@@ -3,7 +3,7 @@ from django.contrib import messages, auth
 from django.contrib.auth.models import User
 from django.core.validators import validate_email
 from django.contrib.auth.decorators import login_required
-
+from .models import form_aluno
 
 def login(request):
     if request.method != "POST":
@@ -77,5 +77,19 @@ def cadastrar(request):
     return redirect('login')
 
 @login_required(redirect_field_name='login')
+
 def dashboard(request):
-    return render(request, 'aluno/dashboard.html')
+    if request.method != 'POST':
+        return render(request, 'aluno/dashboard.html')
+
+    form = form_aluno(request.POST, request.FILES)
+    if not form.is_valid():
+        form = form_aluno(request.POST)
+        return render(request,'aluno/dashboard.html')
+    else:
+        form.save()
+        return render(request, 'aluno/dashboard.html')
+
+def post(request):
+    form = form_aluno()
+    return render(request,'aluno/post_aluno.html', {'form':form})
